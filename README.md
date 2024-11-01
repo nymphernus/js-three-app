@@ -24,5 +24,5 @@
         <li>Изменение цвета объекта при наведении мыши на него</li>
     </ul>
     <h2>Скриншоты</h2>
-    <img src='![img_1](https://github.com/user-attachments/assets/4613436c-3aed-4e14-a719-63383d4a159e)' alt='img_1'>
+    <img src="https://github.com/user-attachments/assets/4613436c-3aed-4e14-a719-63383d4a159e" alt="img_1">
 </body>
