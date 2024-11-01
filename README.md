@@ -4,9 +4,9 @@
     <li>Использовалась библиотека для создания 3D-графики в браузере - <a href="https://threejs.org/">Three.js</a></li>
     <h2>Установка</h2>
     <ol>
-        <li>Склонируйте репозиторий на свой компьютер:
+        <p>Склонируйте репозиторий на свой компьютер:
             <pre><code>git clone https://github.com/nymphernus/js-three-app.git</code></pre>
-        </li>
+        </p>
         <li>Перейдите в директорию проекта:
             <pre><code>cd js-three-app</code></pre>
         </li>
@@ -23,6 +23,6 @@
         <li>Перемещение объектов в случайную позицию по нажатию на них</li>
         <li>Изменение цвета объекта при наведении мыши на него</li>
     </ul>
-    <h2>Скриншоты</h2>
+    <h2>Скриншот</h2>
     <img src="https://github.com/user-attachments/assets/4613436c-3aed-4e14-a719-63383d4a159e" alt="img_1">
 </body>
