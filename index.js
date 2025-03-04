@@ -125,6 +125,9 @@ document.addEventListener('keydown', (event) => {
         isFlashlightOn = !isFlashlightOn; // Переключаем состояние
         flashlight.visible = isFlashlightOn; // Включаем или выключаем фонарик
     }
+    if (event.key === '2') {
+        window.location.href = "./plane.html";
+    }
 });
 
 //GSAP CUBE_3
