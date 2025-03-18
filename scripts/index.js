@@ -1,16 +1,8 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // Сцена
 const scene = new THREE.Scene()
-
-// Рендер
-const renderer = new THREE.WebGLRenderer()
-renderer.setSize(window.innerWidth, window.innerHeight)
-document.body.appendChild(renderer.domElement)
 
 // Камера
 const camera = new THREE.PerspectiveCamera(
@@ -19,61 +11,108 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     100
 )
-camera.position.z = 8
+camera.position.set(0, 3, 10)
+camera.rotation.x = 6
 
-// Управление
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.enableDamping = true
-controls.dampingFactor = 0.05
-controls.screenSpacePanning = false
-controls.minDistance = 2
-controls.maxDistance = 10
+// Рендер
+const renderer = new THREE.WebGLRenderer()
+renderer.setSize(window.innerWidth, window.innerHeight)
+document.body.appendChild(renderer.domElement)
 
 // Свет
+const ambientLight = new THREE.AmbientLight('white', 0.5)
+scene.add(ambientLight)
+
 const dirLight = new THREE.DirectionalLight('white', 1)
-dirLight.position.set(0, 0, 5)
+dirLight.position.set(5, 5, 5)
+dirLight.castShadow = true
 scene.add(dirLight)
 
+//Загрузка
+const loader = new GLTFLoader()
 
+let car
 
+loader.load(
+    'models/car/scene.gltf',
+    (gltf) => {
+        car = gltf.scene
+        car.scale.set(1.5, 1.5, 1.5)
+        car.position.set(0, 0, 0)
+        scene.add(car)
+    },
+    (xhr) => {
+        console.log((xhr.loaded / xhr.total * 100) + "% загружено")
+    },
+    (error) => {
+        console.error('Ошибка: ' + error)
+    }
+)
 
-// Текстуры
-const texture_glass = new THREE.TextureLoader().load('img/glass_seamless_texture_3533.jpg')
-const texture_glassMaterial = new THREE.MeshBasicMaterial({map: texture_glass})
+// Создание фигур
+const road = new THREE.Mesh(new THREE.PlaneGeometry(30, 20), new THREE.MeshStandardMaterial({color: 'grey'}))
+road.rotation.x = -Math.PI / 2
+scene.add(road)
 
-// Сфера
-const sphereGeometry = new THREE.SphereGeometry(2, 100, 100)
-const sphereMaterial = new THREE.MeshPhongMaterial({
-    emissive: 'white',
-    emissiveMap: texture_glass,
-    shininess: 10
+// Движение машины
+let angle = 0
+let isMoving = false
+window.addEventListener('keydown', (event) => {
+    if(event.key === 'ArrowUp')
+        isMoving = true
 })
-const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
-sphere.position.set(0, 0, 0)
-scene.add(sphere)
+window.addEventListener('keyup', (event) => {
+    if(event.key === 'ArrowUp')
+        isMoving = false
+})
 
-// Обработчик событий
-const mouse = new THREE.Vector2()
-
-function onMouseClick(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
+function moveCar() {
+    if(!car || !isMoving) return
+    angle += 0.01
+    car.position.x = 5 * Math.cos(angle)
+    car.position.z = 5 * Math.sin(angle)
+    car.rotation.y = -angle
 }
 
-function onMouseMove(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1
-    console.log(mouse.x, mouse.y)
+//Точки
+const infoPoints = [
+    { position: new THREE.Vector3(5, 0, 0), message: 'Первый' },
+    { position: new THREE.Vector3(0, 0, 5), message: 'Второй' },
+    { position: new THREE.Vector3(-5, 0, 0), message: 'Третий' },
+    { position: new THREE.Vector3(0, 0, -5), message: 'Четвертый' }
+]
+
+function checkInfoPoints() {
+    infoPoints.forEach(point => {
+        const distance = car.position.distanceTo(point.position)
+        if(distance < 0.5)
+            showInfo(point.message)
+    })
 }
 
-// window.addEventListener('mousemove', onMouseMove)
-// window.addEventListener('click', onMouseClick)
+function showInfo(message) {
+    const infoBox = document.getElementById("iblock")
+    infoBox.innerText = message
+    infoBox.style.display = 'block'
+}
 
+function createInfoSphere(position) {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), new THREE.MeshStandardMaterial({color:'red'}))
+    sphere.position.copy(position)
+    sphere.position.y = 2
+    scene.add(sphere)
+}
+
+infoPoints.forEach(point => {
+    createInfoSphere(point.position)
+})
 //Зацикленный рендер и анимация
 function animate(){
     requestAnimationFrame(animate)
+    moveCar()
+    checkInfoPoints()
 
-    controls.update()
+    renderer.setClearColor('lightblue')
     renderer.render(scene, camera)
 }
 
